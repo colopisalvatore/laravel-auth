@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,23 +19,22 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('guest.home');
 });
 
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->name('admin.')->prefix('admin')
+   ->group(function () {
+         Route::get('/', [DashboardController::class, 'index'])
+         ->name('dashboard');
+        Route::resource('posts', PostController::class)->parameters(['posts' => 'post:slug']);
+        Route::resource('categories', CategoryController::class)->parameters(['categories' => 'category:slug']);
+        Route::resource('tags', TagController::class)->parameters(['tags' => 'tag:slug'])->except('show','create','edit');
+   });
 
-// ADMIN CHECK
-Route::middleware(['auth', 'verified'])->name('admin.')->prefix('admin')->group(function () {
 
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-
-    Route::resource('Projects', ProjectController::class)->parameters(['projects' => 'project:slug']);
-
-});
-
-// PROFILE CHECK
 // Route::middleware('auth')->group(function () {
 //     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 //     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
